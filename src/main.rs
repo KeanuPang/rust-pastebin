@@ -3,6 +3,9 @@
 #[macro_use]
 extern crate rocket;
 
+#[cfg(test)]
+mod tests;
+
 use rocket::Data;
 use std::env;
 use std::fs::File;
@@ -12,13 +15,10 @@ mod constants;
 mod models;
 use models::paste_id::PasteId;
 
-#[cfg(test)]
-mod tests;
-
 fn main() {
     setup_logger();
 
-    rocket_instance().launch();
+    get_instance().launch();
 }
 
 fn setup_logger() {
@@ -30,7 +30,7 @@ fn setup_logger() {
     builder.init();
 }
 
-fn rocket_instance() -> rocket::Rocket {
+fn get_instance() -> rocket::Rocket {
     return rocket::ignite().mount("/", routes![index, upload, retrieve]);
 }
 
@@ -51,10 +51,9 @@ fn index() -> &'static str {
 
 #[post("/", data = "<paste>")]
 fn upload(paste: Data) -> Result<String, std::io::Error> {
-    let id = PasteId::new(constants::IDLENGTH, constants::BASE62);
+    let id = PasteId::new(constants::ID_LENGTH, constants::BASE62);
 
-    let filename = format!("upload/{id}", id = id);
-    paste.stream_to_file(Path::new(&filename))?;
+    paste.stream_to_file(Path::new(&id.file_path()))?;
 
     let rocket_host = env::var("ROCKET_HOST").unwrap_or("".to_string());
     let rocket_port = env::var("ROCKET_PORT").unwrap_or("".to_string());
@@ -69,6 +68,5 @@ fn upload(paste: Data) -> Result<String, std::io::Error> {
 
 #[get("/<id>")]
 fn retrieve(id: PasteId) -> Option<File> {
-    let filename = format!("upload/{id}", id = id);
-    return File::open(&filename).ok();
+    return File::open(id.file_path()).ok();
 }

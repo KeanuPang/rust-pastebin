@@ -1,8 +1,6 @@
 use std::fs;
 
-use crate::rocket_instance;
-
-use super::{index, rocket};
+use super::{get_instance, index};
 
 use rocket::http::{ContentType, Status};
 use rocket::local::Client;
@@ -15,7 +13,7 @@ fn extract_id(from: &str) -> Option<String> {
 
 #[test]
 fn check_index() {
-    let client = Client::new(rocket_instance()).unwrap();
+    let client = Client::new(get_instance()).unwrap();
 
     // Ensure the index returns what we expect.
     let mut response = client.get("/").dispatch();
@@ -49,7 +47,7 @@ fn delete_files(ids: &[&str]) {
 
 #[test]
 fn pasting() {
-    let client = Client::new(rocket_instance()).unwrap();
+    let client = Client::new(get_instance()).unwrap();
 
     // Do a trivial upload, just to make sure it works.
     let body_1 = "Hello, world!";
