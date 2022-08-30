@@ -1,2 +1,2 @@
-pub mod counter;
-pub mod logger;
+pub mod middleware_counter;
+pub mod middleware_logger;

@@ -21,6 +21,7 @@ mod routers;
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+use middlewares::{middleware_counter, middleware_logger};
 use models::message;
 use routers::{router_about, router_index};
 
@@ -62,8 +63,8 @@ fn get_instance() -> rocket::Rocket {
             "/message",
             routes![router_about::get, router_about::new, router_about::update],
         )
-        .attach(middlewares::logger::Logger::default())
-        .attach(middlewares::counter::Counter::default())
+        .attach(middleware_logger::Logger::default())
+        .attach(middleware_counter::Counter::default())
         .register(catchers![catcher::not_found])
         .manage(Mutex::new(HashMap::<message::ID, String>::new()));
 }
