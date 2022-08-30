@@ -2,6 +2,8 @@
 
 #[macro_use]
 extern crate rocket;
+#[macro_use]
+extern crate log;
 
 #[cfg(test)]
 mod tests;
@@ -17,6 +19,7 @@ use models::paste_id::PasteId;
 
 fn main() {
     setup_logger();
+    setup_resources();
 
     get_instance().launch();
 }
@@ -28,6 +31,11 @@ fn setup_logger() {
     let mut builder = Builder::from_default_env();
     builder.target(Target::Stdout);
     builder.init();
+}
+
+fn setup_resources() {
+    let upload_folder = constants::UPLOAD_FOLDER;
+    std::fs::create_dir_all(upload_folder).unwrap();
 }
 
 fn get_instance() -> rocket::Rocket {
@@ -53,10 +61,11 @@ fn index() -> &'static str {
 fn upload(paste: Data) -> Result<String, std::io::Error> {
     let id = PasteId::new(constants::ID_LENGTH, constants::BASE62);
 
-    paste.stream_to_file(Path::new(&id.file_path()))?;
+    let upload_size = paste.stream_to_file(Path::new(&id.file_path()))?;
+    info!("//= upload {} bytes with id: {}", upload_size, id);
 
-    let rocket_host = env::var("ROCKET_HOST").unwrap_or("".to_string());
-    let rocket_port = env::var("ROCKET_PORT").unwrap_or("".to_string());
+    let rocket_host = env::var("ROCKET_HOST").expect("invalid variable ROCKET_HOST");
+    let rocket_port = env::var("ROCKET_PORT").expect("invalid variable ROCKET_PORT");
     let url = format!(
         "http://{host}:{port}/{id}\n",
         host = rocket_host,

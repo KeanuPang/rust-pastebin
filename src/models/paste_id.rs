@@ -5,6 +5,8 @@ use std::borrow::Cow;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
+use crate::constants;
+
 /// A _probably_ unique paste ID.
 #[derive(UriDisplayPath)]
 pub struct PasteId<'a>(Cow<'a, str>);
@@ -28,8 +30,8 @@ impl PasteId<'_> {
     }
 
     pub fn file_path(&self) -> PathBuf {
-        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/", "upload");
-        return Path::new(root).join(self.0.as_ref());
+        let root = constants::UPLOAD_FOLDER;
+        return Path::new(&root).join(self.0.as_ref());
     }
 }
 
