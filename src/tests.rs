@@ -1,6 +1,6 @@
 use std::fs;
 
-use super::{get_instance, index};
+use super::{get_instance, router_index, setup_env};
 
 use rocket::http::{ContentType, Status};
 use rocket::local::Client;
@@ -19,7 +19,7 @@ fn check_index() {
     let mut response = client.get("/").dispatch();
     assert_eq!(response.status(), Status::Ok);
     assert_eq!(response.content_type(), Some(ContentType::Plain));
-    assert_eq!(response.body_string(), Some(index().into()))
+    assert_eq!(response.body_string(), Some(router_index::index().into()))
 }
 
 fn upload_paste(client: &Client, body: &str) -> String {
@@ -47,6 +47,8 @@ fn delete_files(ids: &[&str]) {
 
 #[test]
 fn pasting() {
+    setup_env();
+
     let client = Client::new(get_instance()).unwrap();
 
     // Do a trivial upload, just to make sure it works.
