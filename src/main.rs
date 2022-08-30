@@ -14,6 +14,7 @@ mod tests;
 
 mod catcher;
 mod constants;
+mod middlewares;
 mod models;
 mod routers;
 
@@ -61,6 +62,8 @@ fn get_instance() -> rocket::Rocket {
             "/message",
             routes![router_about::get, router_about::new, router_about::update],
         )
+        .attach(middlewares::logger::Logger::default())
+        .attach(middlewares::counter::Counter::default())
         .register(catchers![catcher::not_found])
         .manage(Mutex::new(HashMap::<message::ID, String>::new()));
 }
