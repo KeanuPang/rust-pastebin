@@ -1,9 +1,8 @@
-use std::fs;
-
-use super::{get_instance, router_index, setup_env};
+use super::super::{get_instance, router_index, setup_env};
 
 use rocket::http::{ContentType, Status};
 use rocket::local::Client;
+use std::fs;
 
 fn extract_id(from: &str) -> Option<String> {
     from.rfind('/')
