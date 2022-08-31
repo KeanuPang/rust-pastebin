@@ -36,11 +36,17 @@ fn main() {
 fn setup_env() {
     dotenvy::dotenv().ok();
 }
+
 fn setup_logger() {
     use env_logger::{Builder, Target};
 
     let mut builder = Builder::from_default_env();
     builder.target(Target::Stdout);
+
+    if !std::env::var("RUST_LOG").is_ok() {
+        builder.filter_level(log::LevelFilter::Info);
+    }
+
     builder.init();
 }
 
