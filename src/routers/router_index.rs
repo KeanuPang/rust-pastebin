@@ -50,3 +50,22 @@ pub fn upload(paste: Data, db_manager: State<RocksDBManager>) -> Option<String> 
 pub fn retrieve(id: paste_id::PasteId, db_manager: State<RocksDBManager>) -> Option<String> {
     return db_manager.find(&id.id());
 }
+
+// refer example: https://github.com/mkaczanowski/pastebin/blob/master/src/main.rs
+// #[get("/<id>")]
+// pub fn retrieve<'r>(
+//     id: paste_id::PasteId,
+//     db_manager: State<RocksDBManager>,
+// ) -> Option<Response<'r>> {
+//     if let Some(paste) = db_manager.find(&id.id()) {
+//         return Some(
+//             Response::build()
+//                 .status(Status::Ok)
+//                 .header(ContentType::Plain)
+//                 .sized_body(Cursor::new(paste))
+//                 .finalize(),
+//         );
+//     }
+
+//     return None;
+// }
