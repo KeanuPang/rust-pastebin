@@ -32,12 +32,10 @@ pub fn upload(paste: Data, db_manager: State<RocksDBManager>) -> Option<String> 
     }
 
     if db_manager.save(&id.id(), &buffer) {
-        let rocket_host = env::var("ROCKET_HOST").expect("invalid variable ROCKET_HOST");
-        let rocket_port = env::var("ROCKET_PORT").expect("invalid variable ROCKET_PORT");
         let url = format!(
-            "http://{host}:{port}/{id}\n",
-            host = rocket_host,
-            port = rocket_port,
+            "{host}:{port}/{id}\n",
+            host = env::var("ROCKET_HOST").expect("invalid variable ROCKET_HOST"),
+            port = env::var("ROCKET_PORT").expect("invalid variable ROCKET_PORT"),
             id = id
         );
 
