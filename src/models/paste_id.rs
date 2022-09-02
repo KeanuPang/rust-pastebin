@@ -3,9 +3,6 @@ use rocket::http::RawStr;
 use rocket::request::FromParam;
 use std::borrow::Cow;
 use std::fmt;
-use std::path::{Path, PathBuf};
-
-use crate::constants;
 
 /// A _probably_ unique paste ID.
 #[derive(UriDisplayPath)]
@@ -29,9 +26,8 @@ impl PasteId<'_> {
         return PasteId(Cow::Owned(id));
     }
 
-    pub fn file_path(&self) -> PathBuf {
-        let root = constants::UPLOAD_FOLDER;
-        return Path::new(&root).join(self.0.as_ref());
+    pub fn id(&self) -> String {
+        return self.0.to_string();
     }
 }
 

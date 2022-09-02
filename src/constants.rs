@@ -4,3 +4,4 @@ pub const ID_LENGTH: usize = 5;
 pub const BASE62: &[u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 pub const UPLOAD_FOLDER: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/", "upload");
+pub const ROCKSDB_FOLDER: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/", "db");

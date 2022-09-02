@@ -14,15 +14,14 @@ mod tests;
 
 mod catcher;
 mod constants;
+mod managers;
 mod middlewares;
 mod models;
 mod routers;
 
-use std::collections::HashMap;
-use std::sync::Mutex;
-
+use managers::{manager_message_id, manager_rocksdb};
 use middlewares::{middleware_counter, middleware_logger};
-use models::message;
+use rocket::Rocket;
 use routers::{router_about, router_index};
 
 fn main() {
@@ -43,7 +42,7 @@ fn setup_logger() {
     let mut builder = Builder::from_default_env();
     builder.target(Target::Stdout);
 
-    if !std::env::var("RUST_LOG").is_ok() {
+    if std::env::var("RUST_LOG").is_err() {
         builder.filter_level(log::LevelFilter::Info);
     }
 
@@ -55,8 +54,25 @@ fn setup_resources() {
     std::fs::create_dir_all(upload_folder).expect("cant create uploading folder");
 }
 
-fn get_instance() -> rocket::Rocket {
-    return rocket::ignite()
+fn setup_middlewares(rocket: Rocket) -> Rocket {
+    return rocket
+        .attach(middleware_logger::Logger::default())
+        .attach(middleware_counter::Counter::default());
+}
+
+fn setup_managers(rocket: Rocket) -> Rocket {
+    return rocket
+        .manage(manager_rocksdb::RocksDBManager::init())
+        .manage(manager_message_id::MessageID::generate());
+}
+
+fn get_instance() -> Rocket {
+    let mut rocket = rocket::ignite().register(catchers![catcher::not_found]);
+
+    rocket = setup_middlewares(rocket);
+    rocket = setup_managers(rocket);
+
+    rocket = rocket
         .mount(
             "/",
             routes![
@@ -68,9 +84,7 @@ fn get_instance() -> rocket::Rocket {
         .mount(
             "/message",
             routes![router_about::get, router_about::new, router_about::update],
-        )
-        .attach(middleware_logger::Logger::default())
-        .attach(middleware_counter::Counter::default())
-        .register(catchers![catcher::not_found])
-        .manage(Mutex::new(HashMap::<message::ID, String>::new()));
+        );
+
+    return rocket;
 }
